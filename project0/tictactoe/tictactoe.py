@@ -33,6 +33,7 @@ def actions(board):
     """
     return {(i, j) for i in range(3) for j in range(3) if board[i][j] is None}
 
+
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
@@ -44,6 +45,7 @@ def result(board, action):
     new_board = copy.deepcopy(board)
     new_board[i][j] = player(board)
     return new_board
+
 
 def winner(board):
     """
@@ -61,7 +63,7 @@ def winner(board):
         return board[0][2]
 
     return None
-    
+
 
 def terminal(board):
     """
@@ -87,7 +89,7 @@ def utility(board):
         return -1
     else:
         return 0
-    
+
 
 def minimax_score(board):
     """
