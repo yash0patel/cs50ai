@@ -41,6 +41,11 @@ def result(board, action):
     Returns the board that results from making move (i, j) on the board.
     """
     i, j = action
+
+    # New check for out-of-bounds indices
+    if not (0 <= i < 3 and 0 <= j < 3):
+        raise Exception("Invalid move: cell position is out of bounds.")
+
     if board[i][j] is not None:
         raise Exception("invalid move: cell is already filled.")
 
