@@ -71,20 +71,11 @@ knowledge3 = And(
     Or(A_said_knave, Not(A_said_knave)),  # tautology just to include symbol
 
     # If A said "I am a Knave"
-    Implication(A_said_knave,
-        And(
-            Implication(AKnight, AKnave),    # Knights tell the truth
-            Implication(AKnave, Not(AKnave)) # Knaves lie
-        )
-    ),
+    Implication(A_said_knave, And(Implication(AKnight, AKnave), Implication(AKnave, Not(AKnave)))),
 
     # If A said "I am a Knight"
     Implication(Not(A_said_knave),
-        And(
-            Implication(AKnight, AKnight),
-            Implication(AKnave, Not(AKnight))
-        )
-    ),
+                And(Implication(AKnight, AKnight), Implication(AKnave, Not(AKnight)))),
 
     # B says: "A said 'I am a Knave'" → if B is Knight → A_said_knave true
     Biconditional(BKnight, A_said_knave),
@@ -109,7 +100,7 @@ def main():
     ]
     for puzzle, knowledge in puzzles:
         print(puzzle)
-        if len(knowledge.conjuncts) == 0:    
+        if len(knowledge.conjuncts) == 0:
             print("    Not yet implemented.")
         else:
             for symbol in symbols:
