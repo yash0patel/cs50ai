@@ -105,27 +105,35 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        raise NotImplementedError
+        # If all cells in this sentence are mines
+        if self.count == len(self.cells) and len(self.cells) > 0:
+            return set(self.cells)
+        return set()
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
+        if self.count == 0:
+            return set(self.cells)
+        return set()
 
     def mark_mine(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        raise NotImplementedError
+        if cell in self.cells:
+            self.cells.remove(cell)
+            self.count -= 1
 
     def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        raise NotImplementedError
+        if cell in self.cells:
+            self.cells.remove(cell)
 
 
 class MinesweeperAI():
@@ -168,38 +176,82 @@ class MinesweeperAI():
             sentence.mark_safe(cell)
 
     def add_knowledge(self, cell, count):
-        """
-        Called when the Minesweeper board tells us, for a given
-        safe cell, how many neighboring cells have mines in them.
+        # 1) mark the cell as a move that has been made
+        self.moves_made.add(cell)
 
-        This function should:
-            1) mark the cell as a move that has been made
-            2) mark the cell as safe
-            3) add a new sentence to the AI's knowledge base
-               based on the value of `cell` and `count`
-            4) mark any additional cells as safe or as mines
-               if it can be concluded based on the AI's knowledge base
-            5) add any new sentences to the AI's knowledge base
-               if they can be inferred from existing knowledge
-        """
-        raise NotImplementedError
+        # 2) mark the cell as safe
+        self.mark_safe(cell)
+        
+        # 3) add a new sentence to the AI's knowledge base based on the value of `cell` and `count`
+        neighbors = set()
+        r,c = cell
+
+        # check all neighbors
+        for i in range(r - 1, r + 2):
+            for j in range(c - 1, c + 2):
+                # skip cell itself
+                if (i, j) == cell:
+                    continue
+                # chek boundaries
+                if 0 <= i < self.height and 0 <= j < self.width:
+                    # for already known mine reduce count
+                    if (i, j) in self.mines:
+                        count -= 1
+                    # only include cells whose state is unknown
+                    elif (i, j) not in self.safes:
+                        neighbors.add((i, j))
+
+        # add new sentence if any unknown neighbors
+        if neighbors:
+            self.knowledge.append(Sentence(neighbors,count))
+
+        # 4) mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+        changed = True
+        while changed:
+            changed = False
+            for sentence in self.knowledge:
+                for m in sentence.known_mines():
+                    if m not in self.mines:
+                        self.mark_mine(m)
+                        changed = True
+                for s in sentence.known_safes():
+                    if s not in self.safes:
+                        self.mark_safe(s)
+                        changed = True
+        
+        # 5) add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge           
+        new_sentences = []
+        for s1 in self.knowledge:
+            for s2 in self.knowledge:
+                if s1 == s2:
+                    continue
+                # If s1 is subset of s2, infer a new sentence
+                if s1.cells and s1.cells.issubset(s2.cells):
+                    new_cells = s2.cells - s1.cells
+                    new_count = s2.count - s1.count
+                    new_sentence = Sentence(new_cells, new_count)
+                    if new_sentence not in self.knowledge and new_sentence not in new_sentences:
+                        new_sentences.append(new_sentence)
+                # If s2 is subset of s1, infer another new sentence
+                elif s2.cells and s2.cells.issubset(s1.cells):
+                    new_cells = s1.cells - s2.cells
+                    new_count = s1.count - s2.count
+                    new_sentence = Sentence(new_cells, new_count)
+                    if new_sentence not in self.knowledge and new_sentence not in new_sentences:
+                        new_sentences.append(new_sentence)
+
+        # Add all inferred sentences to knowledge
+        self.knowledge.extend(new_sentences)
+
+        # Remove empty sentences
+        self.knowledge = [s for s in self.knowledge if s.cells]
 
     def make_safe_move(self):
-        """
-        Returns a safe cell to choose on the Minesweeper board.
-        The move must be known to be safe, and not already a move
-        that has been made.
-
-        This function may use the knowledge in self.mines, self.safes
-        and self.moves_made, but should not modify any of those values.
-        """
-        raise NotImplementedError
+        for move in self.safes:
+            if move not in self.moves_made:
+                return move
+        return None
 
     def make_random_move(self):
-        """
-        Returns a move to make on the Minesweeper board.
-        Should choose randomly among cells that:
-            1) have not already been chosen, and
-            2) are not known to be mines
-        """
-        raise NotImplementedError
+        choices = [(i,j) for i in range(self.height) for j in range(self.width) if (i,j) not in self.moves_made and (i,j) not in self.mines]
+        return random.choice(choices) if choices else None
