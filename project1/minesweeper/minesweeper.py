@@ -7,7 +7,7 @@ class Minesweeper():
     Minesweeper game representation
     """
 
-    def __init__(self, height=8, width=8, mines=8):
+    def __init__(self, height=8, width=8, mines=15):
         # Validate number of mines
         if mines > height * width:
             raise ValueError("Number of mines cannot exceed total cells.")
