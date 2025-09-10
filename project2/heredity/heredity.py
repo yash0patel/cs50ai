@@ -157,11 +157,11 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         mother = people[person]["mother"]
         father = people[person]["father"]
 
-        #No parents then use unconditional probability
+        # No parents then use unconditional probability
         if mother is None and father is None:
             gene_prob = PROBS["gene"][gene_count]
 
-        #Has parents then calculate based on inheritance
+        # Has parents then calculate based on inheritance
         else:
             # Helper function to get pass probability for a parent
             def pass_gene(parent):
