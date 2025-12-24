@@ -176,7 +176,7 @@ class CrosswordCreator():
         crossword variable); return False otherwise.
         """
         return len(assignment) == len(self.crossword.variables)
-    
+
     def consistent(self, assignment):
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
@@ -275,6 +275,7 @@ class CrosswordCreator():
                     return result
 
         return None
+
 
 def main():
 
