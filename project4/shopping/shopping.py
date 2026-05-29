@@ -140,7 +140,6 @@ def train_model(evidence, labels):
     return model
 
 
-
 def evaluate(labels, predictions):
     """
     Given a list of actual labels and a list of predicted labels,
