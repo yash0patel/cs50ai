@@ -1,0 +1,4 @@
+opencv-python
+scikit-learn
+tensorflow
+# Download the GTSRB dataset from the CS50 AI Traffic project and place the extracted "gtsrb" folder in the project root directory before running the program.
